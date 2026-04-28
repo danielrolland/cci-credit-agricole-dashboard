@@ -53,7 +53,7 @@ def _empty_row(ticker: str) -> dict:
         "Capitaux propres totaux (M€)": None,
         "Ratio P/B": None,
         "Décote (%)": None,
-        "Titres cotés (CCI)": None,
+        "CCI cotés": None,
         "Capi. CCI (M€)": None,
         "Dernier bilan": None,
     }
@@ -100,7 +100,7 @@ def fetch_one(ticker: str) -> dict:
             (1 - info.get("priceToBook")) * 100
             if info.get("priceToBook") is not None else None
         ),
-        "Titres cotés (CCI)": info.get("sharesOutstanding"),
+        "CCI cotés": info.get("sharesOutstanding"),
         "Capi. CCI (M€)": (
             info.get("marketCap") / 1e6 if info.get("marketCap") else None
         ),
@@ -183,13 +183,23 @@ st.dataframe(
     height=(len(df_sorted) + 1) * 35 + 3,
     column_config={
         "Cours (€)": st.column_config.NumberColumn(format="%.2f €"),
-        "Capitaux propres / titre (€)": st.column_config.NumberColumn(format="%.2f €"),
+        "Capitaux propres / titre (€)": st.column_config.NumberColumn(
+            format="%.2f €",
+            help="Actif net comptable rapporté au nombre TOTAL de titres "
+                 "composant le capital de la caisse (parts sociales + CCA + CCI), "
+                 "pas seulement les CCI cotés. Source : Yahoo Finance (mrq).",
+        ),
         "Capitaux propres totaux (M€)": st.column_config.NumberColumn(format="%.0f"),
         "Ratio P/B": st.column_config.NumberColumn(format="%.3f"),
         "Décote (%)": st.column_config.ProgressColumn(
             min_value=0, max_value=100, format="%.1f %%"
         ),
-        "Titres cotés (CCI)": st.column_config.NumberColumn(format="%d"),
+        "CCI cotés": st.column_config.NumberColumn(
+            format="%d",
+            help="Nombre de CCI cotés à Euronext Paris. Ne représente qu'une "
+                 "fraction du capital total ; ce n'est PAS le dénominateur du "
+                 "champ « Capitaux propres / titre » ci-dessus.",
+        ),
         "Capi. CCI (M€)": st.column_config.NumberColumn(format="%.0f"),
         "Mis à jour": st.column_config.DatetimeColumn(
             format="DD/MM/YYYY HH:mm",
