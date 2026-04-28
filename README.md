@@ -12,13 +12,9 @@ python3 -m venv .venv
 .venv/bin/streamlit run app.py
 ```
 
-## Déploiement sur Streamlit Community Cloud
+## Application en ligne
 
-1. Pousser ce dossier sur un repo GitHub public.
-2. Sur https://share.streamlit.io, cliquer **New app**, sélectionner le repo, la branche, et `app.py`.
-3. Choisir un sous-domaine (ex. `cci-credit-agricole.streamlit.app`).
-
-Pas de variable d'environnement ni de secret nécessaires.
+https://cci-credit-agricole-dashboard-uld6b42hndmrskucnchnpc.streamlit.app/
 
 ## Notes
 
