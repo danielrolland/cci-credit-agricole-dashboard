@@ -1,6 +1,14 @@
 import pandas as pd
 import streamlit as st
 import yfinance as yf
+from curl_cffi import requests as cf_requests
+
+
+@st.cache_resource(show_spinner=False)
+def _yf_session():
+    """Session avec empreinte TLS Chrome — contourne le throttling Yahoo
+    sur les IP datacenter (notamment Streamlit Cloud)."""
+    return cf_requests.Session(impersonate="chrome")
 
 CCI = {
     "CRAP.PA":  "Alpes Provence",
@@ -37,7 +45,7 @@ def _empty_row(ticker: str) -> dict:
 def fetch_one(ticker: str) -> tuple[dict, str | None]:
     """Renvoie (data, error). error vaut None si tout s'est bien passé."""
     try:
-        t = yf.Ticker(ticker)
+        t = yf.Ticker(ticker, session=_yf_session())
         info = t.info or {}
         if not info.get("currentPrice") and not info.get("regularMarketPrice"):
             return _empty_row(ticker), "aucune donnée de cours"
@@ -139,7 +147,7 @@ m3.metric("Capi. CCI cumulée", f"{total_capi:,.0f} M€".replace(",", " ") if p
 
 st.dataframe(
     df_sorted,
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     height=(len(df_sorted) + 1) * 35 + 3,
     column_config={
