@@ -1,7 +1,13 @@
+import sys
+
 import pandas as pd
 import streamlit as st
 import yfinance as yf
 from curl_cffi import requests as cf_requests
+
+
+def _log(level: str, msg: str) -> None:
+    print(f"[{level}] {msg}", file=sys.stderr, flush=True)
 
 
 @st.cache_resource(show_spinner=False)
@@ -48,6 +54,7 @@ def fetch_one(ticker: str) -> tuple[dict, str | None]:
         t = yf.Ticker(ticker, session=_yf_session())
         info = t.info or {}
         if not info.get("currentPrice") and not info.get("regularMarketPrice"):
+            _log("WARN", f"{ticker}: info vide (probable throttle Yahoo) — keys={list(info.keys())[:5]}")
             return _empty_row(ticker), "aucune donnée de cours"
 
         last_balance_date = None
@@ -61,8 +68,10 @@ def fetch_one(ticker: str) -> tuple[dict, str | None]:
                     if row in bs.index:
                         total_equity = float(bs.loc[row].iloc[0])
                         break
-        except Exception:
-            pass
+            else:
+                _log("WARN", f"{ticker}: balance_sheet vide")
+        except Exception as e:
+            _log("WARN", f"{ticker}: balance_sheet KO ({type(e).__name__}: {e})")
 
         return {
             "Ticker": ticker,
@@ -83,6 +92,7 @@ def fetch_one(ticker: str) -> tuple[dict, str | None]:
             "Dernier bilan": last_balance_date,
         }, None
     except Exception as e:
+        _log("ERROR", f"{ticker}: {type(e).__name__}: {e}")
         return _empty_row(ticker), f"{type(e).__name__}: {e}"
 
 
