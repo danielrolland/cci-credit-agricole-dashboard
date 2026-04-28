@@ -138,7 +138,7 @@ st.set_page_config(
 st.title("CCI Crédit Agricole — cours & capitaux propres")
 st.caption(
     "Suivi des 13 Certificats Coopératifs d'Investissement des Caisses Régionales du "
-    "Crédit Agricole cotés à Euronext Paris. Données : Yahoo Finance via yfinance."
+    "Crédit Agricole cotés à Euronext Paris. Données : Yahoo Finance."
 )
 
 with st.spinner("Récupération des données…"):
