@@ -1,9 +1,13 @@
+import datetime as dt
 import sys
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import streamlit as st
 import yfinance as yf
 from curl_cffi import requests as cf_requests
+
+PARIS = ZoneInfo("Europe/Paris")
 
 
 def _log(level: str, msg: str) -> None:
@@ -15,6 +19,14 @@ def _yf_session():
     """Session avec empreinte TLS Chrome — contourne le throttling Yahoo
     sur les IP datacenter (notamment Streamlit Cloud)."""
     return cf_requests.Session(impersonate="chrome")
+
+
+@st.cache_resource(show_spinner=False)
+def _last_success() -> dict[str, dt.datetime]:
+    """Dict partagé entre toutes les sessions, qui mémorise la date du
+    dernier fetch réussi par ticker. Survit aux invalidations de cache_data
+    mais pas au redémarrage du conteneur."""
+    return {}
 
 CCI = {
     "CRAP.PA":  "Alpes Provence",
@@ -48,63 +60,72 @@ def _empty_row(ticker: str) -> dict:
 
 
 @st.cache_data(ttl=900, show_spinner=False)
-def fetch_one(ticker: str) -> tuple[dict, str | None]:
-    """Renvoie (data, error). error vaut None si tout s'est bien passé."""
+def fetch_one(ticker: str) -> dict:
+    """Renvoie les données du ticker. Lève une exception en cas d'échec :
+    Streamlit ne cache pas les exceptions, donc le ticker sera retenté
+    à la prochaine visite (pas de TTL "négatif" sur les échecs)."""
+    t = yf.Ticker(ticker, session=_yf_session())
+    info = t.info or {}
+    if not info.get("currentPrice") and not info.get("regularMarketPrice"):
+        _log("WARN", f"{ticker}: info vide (probable throttle Yahoo) — keys={list(info.keys())[:5]}")
+        raise RuntimeError("aucune donnée de cours")
+
+    last_balance_date = None
+    total_equity = None
     try:
-        t = yf.Ticker(ticker, session=_yf_session())
-        info = t.info or {}
-        if not info.get("currentPrice") and not info.get("regularMarketPrice"):
-            _log("WARN", f"{ticker}: info vide (probable throttle Yahoo) — keys={list(info.keys())[:5]}")
-            return _empty_row(ticker), "aucune donnée de cours"
-
-        last_balance_date = None
-        total_equity = None
-        try:
-            bs = t.balance_sheet
-            if bs is not None and not bs.empty:
-                last_balance_date = bs.columns[0].date().isoformat()
-                for row in ("Stockholders Equity", "Common Stock Equity",
-                            "Total Equity Gross Minority Interest"):
-                    if row in bs.index:
-                        total_equity = float(bs.loc[row].iloc[0])
-                        break
-            else:
-                _log("WARN", f"{ticker}: balance_sheet vide")
-        except Exception as e:
-            _log("WARN", f"{ticker}: balance_sheet KO ({type(e).__name__}: {e})")
-
-        return {
-            "Ticker": ticker,
-            "Cours (€)": info.get("currentPrice") or info.get("regularMarketPrice"),
-            "Capitaux propres / titre (€)": info.get("bookValue"),
-            "Capitaux propres totaux (M€)": (
-                total_equity / 1e6 if total_equity is not None else None
-            ),
-            "Ratio P/B": info.get("priceToBook"),
-            "Décote (%)": (
-                (1 - info.get("priceToBook")) * 100
-                if info.get("priceToBook") is not None else None
-            ),
-            "Titres cotés (CCI)": info.get("sharesOutstanding"),
-            "Capi. CCI (M€)": (
-                info.get("marketCap") / 1e6 if info.get("marketCap") else None
-            ),
-            "Dernier bilan": last_balance_date,
-        }, None
+        bs = t.balance_sheet
+        if bs is not None and not bs.empty:
+            last_balance_date = bs.columns[0].date().isoformat()
+            for row in ("Stockholders Equity", "Common Stock Equity",
+                        "Total Equity Gross Minority Interest"):
+                if row in bs.index:
+                    total_equity = float(bs.loc[row].iloc[0])
+                    break
+        else:
+            _log("WARN", f"{ticker}: balance_sheet vide")
     except Exception as e:
-        _log("ERROR", f"{ticker}: {type(e).__name__}: {e}")
-        return _empty_row(ticker), f"{type(e).__name__}: {e}"
+        _log("WARN", f"{ticker}: balance_sheet KO ({type(e).__name__}: {e})")
+
+    _last_success()[ticker] = dt.datetime.now(PARIS)
+
+    return {
+        "Ticker": ticker,
+        "Cours (€)": info.get("currentPrice") or info.get("regularMarketPrice"),
+        "Capitaux propres / titre (€)": info.get("bookValue"),
+        "Capitaux propres totaux (M€)": (
+            total_equity / 1e6 if total_equity is not None else None
+        ),
+        "Ratio P/B": info.get("priceToBook"),
+        "Décote (%)": (
+            (1 - info.get("priceToBook")) * 100
+            if info.get("priceToBook") is not None else None
+        ),
+        "Titres cotés (CCI)": info.get("sharesOutstanding"),
+        "Capi. CCI (M€)": (
+            info.get("marketCap") / 1e6 if info.get("marketCap") else None
+        ),
+        "Dernier bilan": last_balance_date,
+    }
 
 
-@st.cache_data(ttl=900, show_spinner=False)
 def fetch_all() -> tuple[pd.DataFrame, dict[str, str]]:
+    """Pas cachée — chaque appel rejoue la boucle, mais fetch_one ne fait
+    un appel réel à Yahoo que sur cache miss (succès expirés ou échecs)."""
     rows = []
     failures: dict[str, str] = {}
+    last_success = _last_success()
     for ticker, name in CCI.items():
-        data, err = fetch_one(ticker)
-        if err:
-            failures[ticker] = err
-        rows.append({"Caisse régionale": name, **data})
+        try:
+            data = fetch_one(ticker)
+        except Exception as e:
+            _log("ERROR", f"{ticker}: {type(e).__name__}: {e}")
+            data = _empty_row(ticker)
+            failures[ticker] = f"{type(e).__name__}: {e}"
+        rows.append({
+            "Caisse régionale": name,
+            **data,
+            "Mis à jour": last_success.get(ticker),
+        })
     return pd.DataFrame(rows), failures
 
 
@@ -170,6 +191,10 @@ st.dataframe(
         ),
         "Titres cotés (CCI)": st.column_config.NumberColumn(format="%d"),
         "Capi. CCI (M€)": st.column_config.NumberColumn(format="%.0f"),
+        "Mis à jour": st.column_config.DatetimeColumn(
+            format="DD/MM/YYYY HH:mm",
+            help="Date du dernier fetch réussi pour ce ticker. Vide si aucun succès depuis le démarrage du serveur.",
+        ),
     },
 )
 
