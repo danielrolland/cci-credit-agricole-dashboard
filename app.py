@@ -22,10 +22,12 @@ def _yf_session():
 
 
 @st.cache_resource(show_spinner=False)
-def _last_success() -> dict[str, dt.datetime]:
-    """Dict partagé entre toutes les sessions, qui mémorise la date du
-    dernier fetch réussi par ticker. Survit aux invalidations de cache_data
-    mais pas au redémarrage du conteneur."""
+def _last_good() -> dict[str, dict]:
+    """Dict partagé entre toutes les sessions, qui mémorise le dernier fetch
+    RÉUSSI par ticker : {"data": <dict de fetch_one>, "ts": <datetime>}.
+    Sert de repli quand Yahoo est injoignable — on réaffiche les dernières
+    valeurs connues plutôt qu'une ligne vide. Survit aux invalidations de
+    cache_data (TTL) mais pas au redémarrage / sommeil du conteneur."""
     return {}
 
 CCI = {
@@ -86,9 +88,7 @@ def fetch_one(ticker: str) -> dict:
     except Exception as e:
         _log("WARN", f"{ticker}: balance_sheet KO ({type(e).__name__}: {e})")
 
-    _last_success()[ticker] = dt.datetime.now(PARIS)
-
-    return {
+    result = {
         "Ticker": ticker,
         "Cours (€)": info.get("currentPrice") or info.get("regularMarketPrice"),
         "Capitaux propres / titre (€)": info.get("bookValue"),
@@ -106,27 +106,44 @@ def fetch_one(ticker: str) -> dict:
         ),
         "Dernier bilan": last_balance_date,
     }
+    _last_good()[ticker] = {"data": result, "ts": dt.datetime.now(PARIS)}
+    return result
 
 
-def fetch_all() -> tuple[pd.DataFrame, dict[str, str]]:
+def fetch_all() -> tuple[pd.DataFrame, dict[str, str], set[str]]:
     """Pas cachée — chaque appel rejoue la boucle, mais fetch_one ne fait
-    un appel réel à Yahoo que sur cache miss (succès expirés ou échecs)."""
+    un appel réel à Yahoo que sur cache miss (succès expirés ou échecs).
+
+    En cas d'échec, on retombe sur le dernier fetch réussi mémorisé
+    (`_last_good`) si disponible : les valeurs affichées sont alors « périmées »
+    (stale) mais réelles, plutôt qu'une ligne vide. `stale` contient les tickers
+    affichés ainsi ; `failures` reste la liste de tous les tickers en échec."""
     rows = []
     failures: dict[str, str] = {}
-    last_success = _last_success()
+    stale: set[str] = set()
+    last_good = _last_good()
     for ticker, name in CCI.items():
         try:
             data = fetch_one(ticker)
+            ts = last_good.get(ticker, {}).get("ts")
         except Exception as e:
-            _log("ERROR", f"{ticker}: {type(e).__name__}: {e}")
-            data = _empty_row(ticker)
             failures[ticker] = f"{type(e).__name__}: {e}"
+            cached = last_good.get(ticker)
+            if cached:
+                _log("WARN", f"{ticker}: fetch KO, repli sur les données du {cached['ts']}")
+                data = cached["data"]
+                ts = cached["ts"]
+                stale.add(ticker)
+            else:
+                _log("ERROR", f"{ticker}: {type(e).__name__}: {e} (aucune donnée en cache)")
+                data = _empty_row(ticker)
+                ts = None
         rows.append({
             "Caisse régionale": name,
             **data,
-            "Mis à jour": last_success.get(ticker),
+            "Mis à jour": ts,
         })
-    return pd.DataFrame(rows), failures
+    return pd.DataFrame(rows), failures, stale
 
 
 st.set_page_config(
@@ -143,7 +160,7 @@ st.caption(
 
 with st.spinner("Récupération des données…"):
     try:
-        df, failures = fetch_all()
+        df, failures, stale = fetch_all()
     except Exception as e:
         st.error(
             "Yahoo Finance temporairement injoignable. "
@@ -153,17 +170,24 @@ with st.spinner("Récupération des données…"):
         st.stop()
 
 if failures:
-    if len(failures) == len(CCI):
-        st.error(
-            "Aucune donnée n'a pu être récupérée pour les 13 CCI. "
-            "Yahoo Finance est probablement injoignable, réessayez plus tard."
-        )
-    else:
-        details = ", ".join(f"{tk} ({CCI[tk]})" for tk in failures)
+    no_data = [tk for tk in failures if tk not in stale]
+    if stale:
         st.warning(
-            f"Données indisponibles pour {len(failures)} CCI : {details}. "
-            "Le reste du tableau reste exploitable."
+            f"Yahoo Finance injoignable pour {len(stale)} CCI : dernières valeurs "
+            "connues affichées (voir la colonne « Mis à jour » pour leur fraîcheur)."
         )
+    if no_data:
+        if len(no_data) == len(CCI):
+            st.error(
+                "Aucune donnée n'a pu être récupérée pour les 13 CCI, et aucune valeur "
+                "n'est en cache. Yahoo Finance est probablement injoignable, réessayez plus tard."
+            )
+        else:
+            details = ", ".join(f"{tk} ({CCI[tk]})" for tk in no_data)
+            st.warning(
+                f"Aucune donnée (même en cache) pour {len(no_data)} CCI : {details}. "
+                "Le reste du tableau reste exploitable."
+            )
 
 df_sorted = df.sort_values("Ratio P/B", ascending=True, na_position="last").reset_index(drop=True)
 
