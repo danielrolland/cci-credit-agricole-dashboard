@@ -1,0 +1,4 @@
+# Dépendances du fetcher (fetch_data.py), utilisées uniquement par le job
+# GitHub Actions — pas par l'app Streamlit, qui ne fait que lire le JSON.
+yfinance>=0.2.50
+curl_cffi>=0.7

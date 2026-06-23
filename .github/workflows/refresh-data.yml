@@ -1,0 +1,63 @@
+name: refresh-data
+
+# Récupère les cours/fondamentaux des 13 CCI depuis Yahoo (IP GitHub, non
+# rate-limitée contrairement à celle de Streamlit Cloud) et publie le snapshot
+# JSON sur la branche `data`. L'app Streamlit ne fait que lire ce JSON.
+on:
+  schedule:
+    # Toutes les 30 min, en semaine (heures larges autour d'Euronext Paris ;
+    # cron en UTC). Repo public => minutes Actions illimitées.
+    - cron: "*/30 6-17 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (code)
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install fetch deps
+        run: pip install -r requirements-fetch.txt
+
+      - name: Download previous snapshot (pour le repli)
+        run: |
+          curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/data/cci-data.json" \
+            -o previous.json || echo "pas de snapshot précédent"
+
+      - name: Fetch data from Yahoo
+        run: python fetch_data.py cci-data.json previous.json
+
+      - name: Publish snapshot to data branch
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          tmp="$(mktemp -d)"
+          if git fetch origin data; then
+            git worktree add "$tmp" origin/data
+            git -C "$tmp" checkout -B data
+          else
+            git worktree add --orphan -b data "$tmp"
+          fi
+          cp cci-data.json "$tmp/cci-data.json"
+          git -C "$tmp" add cci-data.json
+          if git -C "$tmp" diff --cached --quiet; then
+            echo "Aucun changement de données."
+          else
+            git -C "$tmp" commit -m "data: refresh $(date -u +%FT%TZ)"
+            git -C "$tmp" push origin data
+          fi

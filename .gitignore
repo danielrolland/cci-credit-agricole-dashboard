@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .DS_Store
 .streamlit/secrets.toml
+# Snapshots de données : vivent sur la branche `data`, jamais sur `main`.
+cci-data.json
+previous.json
