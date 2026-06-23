@@ -6,8 +6,8 @@ name: refresh-data
 on:
   schedule:
     # Toutes les 30 min, en semaine (heures larges autour d'Euronext Paris ;
-    # cron en UTC). Repo public => minutes Actions illimitées.
-    - cron: "*/30 6-17 * * 1-5"
+    # cron en UTC). Minutes décalées pour éviter les pics GitHub Actions à :00/:30.
+    - cron: "7,37 6-17 * * 1-5"
   workflow_dispatch: {}
 
 permissions:
