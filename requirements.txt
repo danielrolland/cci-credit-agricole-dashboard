@@ -1,2 +1,6 @@
 streamlit>=1.40
 pandas>=2.2
+# L'app tente désormais un fetch Yahoo live (avec repli sur la branche `data`),
+# donc elle a besoin des mêmes deps que le fetcher (cf. cci_fetch.py).
+yfinance>=0.2.50
+curl_cffi>=0.7

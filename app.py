@@ -1,19 +1,22 @@
 import datetime as dt
 import json
-import sys
+import time
 import urllib.request
 from zoneinfo import ZoneInfo
 
 import pandas as pd
 import streamlit as st
 
-PARIS = ZoneInfo("Europe/Paris")
+from cci_fetch import CCI, PARIS, empty_row, fetch_one, log, make_session
 
-# Snapshot publié par le job GitHub Actions (`fetch_data.py`) sur la branche
-# `data`. L'app ne contacte JAMAIS Yahoo directement : c'est le fetcher qui le
-# fait depuis une IP non rate-limitée, et écrit ce JSON versionné dans git.
-# Conséquence : plus de YFRateLimitError côté app, et les dernières valeurs
-# connues survivent aux redéploiements / mises en sommeil de Streamlit Cloud.
+# Repli en cascade — le plus frais l'emporte, par ticker :
+#   1. live    : on interroge Yahoo ici (cache 30 min, partagé entre sessions) ;
+#   2. mémoire : dernier fetch live réussi du process (survit au cache 30 min) ;
+#   3. branche : snapshot publié par le job GitHub Actions, tenu à jour ~quelques
+#                fois/jour — plancher qui survit au cold start de Streamlit Cloud.
+# L'app peut se faire 429 par Yahoo depuis l'IP datacenter (cf. gotcha #1) : dans
+# ce cas elle retombe sur (2) puis (3), donc jamais de page vide — au pire on
+# voit ce que la branche `data` contient, comme avant.
 DATA_URL = (
     "https://raw.githubusercontent.com/"
     "danielrolland/cci-credit-agricole-dashboard/data/cci-data.json"
@@ -26,18 +29,80 @@ COLUMNS = [
     "Dernier bilan", "Mis à jour",
 ]
 
+_MIN_TS = pd.Timestamp.min.tz_localize("UTC")
 
-def _log(level: str, msg: str) -> None:
-    print(f"[{level}] {msg}", file=sys.stderr, flush=True)
+
+@st.cache_resource(show_spinner=False)
+def _memory_store() -> dict:
+    """Singleton process : dernière ligne live réussie par ticker. Survit aux
+    évictions du cache 30 min et aux sessions ; perdu au cold start (→ branche)."""
+    return {}
 
 
 @st.cache_data(ttl=900, show_spinner=False)
-def load_snapshot() -> dict:
-    """Lit le dernier snapshot publié (branche `data`). Mis en cache 15 min ;
-    le fetcher rafraîchit la donnée toutes les ~30 min côté GitHub."""
+def _branch_rows() -> dict:
+    """Plancher : snapshot de la branche `data` (publié par GitHub Actions),
+    indexé par ticker. Lecture best-effort : en cas d'échec on renvoie {}."""
     req = urllib.request.Request(DATA_URL, headers={"User-Agent": "cci-dashboard"})
-    with urllib.request.urlopen(req, timeout=10) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            snap = json.loads(resp.read().decode("utf-8"))
+        return {r["Ticker"]: r for r in snap.get("rows", []) if r.get("Ticker")}
+    except Exception as e:
+        log("WARN", f"branche `data` illisible : {type(e).__name__}: {e}")
+        return {}
+
+
+def _ts(row: dict | None) -> pd.Timestamp:
+    """Horodatage « Mis à jour » comparable (None → très ancien)."""
+    val = row.get("Mis à jour") if row else None
+    return pd.to_datetime(val, utc=True) if val else _MIN_TS
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def load_data() -> dict:
+    """Fetch live Yahoo (≤ 1× / 30 min, partagé entre toutes les sessions grâce
+    au cache). Par ticker en échec : repli sur la valeur connue la plus récente
+    (mémoire process, puis branche `data`)."""
+    session = make_session()
+    memory = _memory_store()
+    branch = _branch_rows()
+    now = dt.datetime.now(PARIS).isoformat(timespec="seconds")
+
+    rows, stale, missing = [], [], []
+    for i, (ticker, name) in enumerate(CCI.items()):
+        if i:
+            time.sleep(1.5)  # on reste poli avec Yahoo
+        try:
+            data = fetch_one(ticker, session)
+            row = {"Caisse régionale": name, **data, "Mis à jour": now}
+            memory[ticker] = row  # mémorise le dernier live réussi
+            rows.append(row)
+            log("INFO", f"{ticker}: live OK ({data['Cours (€)']} €)")
+        except Exception as e:
+            log("WARN", f"{ticker}: live KO ({type(e).__name__}: {e})")
+            known = [r for r in (memory.get(ticker), branch.get(ticker))
+                     if r and r.get("Cours (€)") is not None]
+            if known:
+                best = max(known, key=_ts)
+                row = dict(best)
+                row["Caisse régionale"] = name  # au cas où le libellé change
+                rows.append(row)
+                stale.append(ticker)
+                log("WARN", f"{ticker}: repli sur valeur du {best.get('Mis à jour')}")
+            else:
+                rows.append(empty_row(ticker, name))
+                missing.append(ticker)
+
+    # Fraîcheur globale = horodatage de ligne le plus récent.
+    ts_all = [_ts(r) for r in rows if _ts(r) != _MIN_TS]
+    generated_at = max(ts_all).isoformat() if ts_all else now
+    return {
+        "generated_at": generated_at,
+        "rows": rows,
+        "stale_tickers": stale,
+        "missing_tickers": missing,
+    }
 
 
 st.set_page_config(
@@ -52,14 +117,13 @@ st.caption(
     "Crédit Agricole cotés à Euronext Paris. Données : Yahoo Finance."
 )
 
-with st.spinner("Chargement des données…"):
+with st.spinner("Récupération des cours… (peut prendre ~20 s lors d'une actualisation)"):
     try:
-        snapshot = load_snapshot()
+        snapshot = load_data()
     except Exception as e:
-        _log("ERROR", f"snapshot illisible : {type(e).__name__}: {e}")
+        log("ERROR", f"chargement des données impossible : {type(e).__name__}: {e}")
         st.error(
-            "Données momentanément indisponibles (snapshot introuvable). "
-            "Réessayez dans quelques minutes."
+            "Données momentanément indisponibles. Réessayez dans quelques minutes."
         )
         st.caption(f"Détail technique : `{type(e).__name__}: {e}`")
         st.stop()
