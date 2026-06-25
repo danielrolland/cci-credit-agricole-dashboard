@@ -94,9 +94,10 @@ def load_data() -> dict:
                 rows.append(empty_row(ticker, name))
                 missing.append(ticker)
 
-    # Fraîcheur globale = horodatage de ligne le plus récent.
+    # Fraîcheur globale = horodatage de ligne le plus récent (en heure de Paris,
+    # comme `now` ci-dessus : l'UI affiche `generated_at` tel quel sans reconvertir).
     ts_all = [_ts(r) for r in rows if _ts(r) != _MIN_TS]
-    generated_at = max(ts_all).isoformat() if ts_all else now
+    generated_at = max(ts_all).tz_convert(PARIS).isoformat() if ts_all else now
     return {
         "generated_at": generated_at,
         "rows": rows,
