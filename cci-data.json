@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-17T13:35:50+02:00",
+  "generated_at": "2026-08-17T13:57:03+02:00",
   "rows": [
     {
       "Caisse régionale": "Alpes Provence",
@@ -12,7 +12,7 @@
       "CCI cotés": 673774,
       "Capi. CCI (M€)": 996.84192,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     },
     {
       "Caisse régionale": "Atlantique Vendée",
@@ -25,7 +25,7 @@
       "CCI cotés": 1198982,
       "Capi. CCI (M€)": 988.9984,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     },
     {
       "Caisse régionale": "Brie Picardie",
@@ -38,7 +38,7 @@
       "CCI cotés": 13835019,
       "Capi. CCI (M€)": 1958.880768,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     },
     {
       "Caisse régionale": "Ille-et-Vilaine",
@@ -51,7 +51,7 @@
       "CCI cotés": 2188974,
       "Capi. CCI (M€)": 688.515968,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     },
     {
       "Caisse régionale": "Languedoc",
@@ -64,7 +64,7 @@
       "CCI cotés": 1750620,
       "Capi. CCI (M€)": 1794.535936,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     },
     {
       "Caisse régionale": "Loire Haute-Loire",
@@ -77,7 +77,7 @@
       "CCI cotés": 999745,
       "Capi. CCI (M€)": 802.646912,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     },
     {
       "Caisse régionale": "Morbihan",
@@ -90,20 +90,20 @@
       "CCI cotés": 1558720,
       "Capi. CCI (M€)": 610.601536,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     },
     {
       "Caisse régionale": "Nord de France",
       "Ticker": "CNDF.PA",
-      "Cours (€)": 30.57,
+      "Cours (€)": 30.94,
       "Capitaux propres / titre (€)": 108.689,
       "Capitaux propres totaux (M€)": 6285.064,
-      "Ratio P/B": 0.2812612,
-      "Décote (%)": 71.87388,
+      "Ratio P/B": 0.2846654,
+      "Décote (%)": 71.53346,
       "CCI cotés": 15362063,
-      "Capi. CCI (M€)": 1767.743872,
+      "Capi. CCI (M€)": 1789.139584,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     },
     {
       "Caisse régionale": "Normandie-Seine",
@@ -116,7 +116,7 @@
       "CCI cotés": 3488241,
       "Capi. CCI (M€)": 970.39456,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     },
     {
       "Caisse régionale": "Paris Île-de-France",
@@ -129,7 +129,7 @@
       "CCI cotés": 8012429,
       "Capi. CCI (M€)": 3213.98656,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     },
     {
       "Caisse régionale": "Sud Rhône Alpes",
@@ -142,7 +142,7 @@
       "CCI cotés": 593414,
       "Capi. CCI (M€)": 1017.482368,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     },
     {
       "Caisse régionale": "Toulouse 31",
@@ -155,7 +155,7 @@
       "CCI cotés": 4513142,
       "Capi. CCI (M€)": 544.194688,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     },
     {
       "Caisse régionale": "Touraine Poitou",
@@ -168,7 +168,7 @@
       "CCI cotés": 1000497,
       "Capi. CCI (M€)": 855.46624,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-08-17T13:35:50+02:00"
+      "Mis à jour": "2026-08-17T13:57:03+02:00"
     }
   ],
   "stale_tickers": [],
