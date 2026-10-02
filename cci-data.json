@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-02T14:24:06+02:00",
+  "generated_at": "2026-10-02T20:00:30+02:00",
   "rows": [
     {
       "Caisse régionale": "Alpes Provence",
@@ -12,59 +12,59 @@
       "CCI cotés": 670541,
       "Capi. CCI (M€)": 906.906752,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     },
     {
       "Caisse régionale": "Atlantique Vendée",
       "Ticker": "CRAV.PA",
-      "Cours (€)": 122.96,
+      "Cours (€)": 122.52,
       "Capitaux propres / titre (€)": 610.096,
       "Capitaux propres totaux (M€)": 4366.768,
-      "Ratio P/B": 0.20154205,
-      "Décote (%)": 79.845795,
+      "Ratio P/B": 0.20082085,
+      "Décote (%)": 79.91791500000001,
       "CCI cotés": 1198982,
-      "Capi. CCI (M€)": 907.516864,
+      "Capi. CCI (M€)": 904.269376,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     },
     {
       "Caisse régionale": "Brie Picardie",
       "Ticker": "CRBP2.PA",
-      "Cours (€)": 31.0,
+      "Cours (€)": 31.11,
       "Capitaux propres / titre (€)": 116.458,
       "Capitaux propres totaux (M€)": 6003.331,
-      "Ratio P/B": 0.26619038,
-      "Décote (%)": 73.380962,
+      "Ratio P/B": 0.26713493,
+      "Décote (%)": 73.286507,
       "CCI cotés": 14868293,
-      "Capi. CCI (M€)": 1657.876224,
+      "Capi. CCI (M€)": 1663.759104,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     },
     {
       "Caisse régionale": "Ille-et-Vilaine",
       "Ticker": "CIV.PA",
-      "Cours (€)": 110.0,
-      "Capitaux propres / titre (€)": 447.56,
+      "Cours (€)": 109.5,
+      "Capitaux propres / titre (€)": 468.698,
       "Capitaux propres totaux (M€)": 2709.298,
-      "Ratio P/B": 0.2457771,
-      "Décote (%)": 75.42229,
+      "Ratio P/B": 0.23362592,
+      "Décote (%)": 76.63740800000001,
       "CCI cotés": 2188988,
-      "Capi. CCI (M€)": 661.45792,
+      "Capi. CCI (M€)": 658.451328,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     },
     {
       "Caisse régionale": "Languedoc",
       "Ticker": "CRLA.PA",
-      "Cours (€)": 74.0,
+      "Cours (€)": 72.31,
       "Capitaux propres / titre (€)": 317.728,
       "Capitaux propres totaux (M€)": 6042.177,
-      "Ratio P/B": 0.23290361,
-      "Décote (%)": 76.709639,
+      "Ratio P/B": 0.2275846,
+      "Décote (%)": 77.24154,
       "CCI cotés": 1750620,
-      "Capi. CCI (M€)": 1459.132544,
+      "Capi. CCI (M€)": 1425.809152,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     },
     {
       "Caisse régionale": "Loire Haute-Loire",
@@ -77,85 +77,85 @@
       "CCI cotés": 953443,
       "Capi. CCI (M€)": 753.927104,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     },
     {
       "Caisse régionale": "Morbihan",
       "Ticker": "CMO.PA",
-      "Cours (€)": 106.7,
-      "Capitaux propres / titre (€)": 450.429,
+      "Cours (€)": 106.5,
+      "Capitaux propres / titre (€)": 465.83,
       "Capitaux propres totaux (M€)": 2362.048,
-      "Ratio P/B": 0.23688528,
-      "Décote (%)": 76.31147200000001,
+      "Ratio P/B": 0.22862418,
+      "Décote (%)": 77.13758200000001,
       "CCI cotés": 1558720,
-      "Capi. CCI (M€)": 559.429696,
+      "Capi. CCI (M€)": 558.38112,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     },
     {
       "Caisse régionale": "Nord de France",
       "Ticker": "CNDF.PA",
-      "Cours (€)": 25.18,
+      "Cours (€)": 25.09,
       "Capitaux propres / titre (€)": 108.689,
       "Capitaux propres totaux (M€)": 6285.064,
-      "Ratio P/B": 0.23167017,
-      "Décote (%)": 76.832983,
+      "Ratio P/B": 0.23084213,
+      "Décote (%)": 76.91578700000001,
       "CCI cotés": 15362063,
-      "Capi. CCI (M€)": 1456.061184,
+      "Capi. CCI (M€)": 1450.856832,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     },
     {
       "Caisse régionale": "Normandie-Seine",
       "Ticker": "CCN.PA",
-      "Cours (€)": 144.02,
+      "Cours (€)": 143.0,
       "Capitaux propres / titre (€)": 585.783,
       "Capitaux propres totaux (M€)": 3399.896,
-      "Ratio P/B": 0.24585897,
-      "Décote (%)": 75.414103,
+      "Ratio P/B": 0.24411769,
+      "Décote (%)": 75.58823100000001,
       "CCI cotés": 3488241,
-      "Capi. CCI (M€)": 870.755328,
+      "Capi. CCI (M€)": 864.588288,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     },
     {
       "Caisse régionale": "Paris Île-de-France",
       "Ticker": "CAF.PA",
-      "Cours (€)": 87.99,
+      "Cours (€)": 85.0,
       "Capitaux propres / titre (€)": 332.317,
       "Capitaux propres totaux (M€)": 8943.751,
-      "Ratio P/B": 0.2647773,
-      "Décote (%)": 73.52227,
+      "Ratio P/B": 0.2557799,
+      "Décote (%)": 74.42201,
       "CCI cotés": 7923079,
-      "Capi. CCI (M€)": 2444.914688,
+      "Capi. CCI (M€)": 2361.833728,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     },
     {
       "Caisse régionale": "Sud Rhône Alpes",
       "Ticker": "CRSU.PA",
-      "Cours (€)": 210.0,
+      "Cours (€)": 206.0,
       "Capitaux propres / titre (€)": 819.356,
       "Capitaux propres totaux (M€)": 3744.269,
-      "Ratio P/B": 0.25629884,
-      "Décote (%)": 74.370116,
+      "Ratio P/B": 0.25141695,
+      "Décote (%)": 74.858305,
       "CCI cotés": 593414,
-      "Capi. CCI (M€)": 953.889728,
+      "Capi. CCI (M€)": 935.720384,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     },
     {
       "Caisse régionale": "Toulouse 31",
       "Ticker": "CAT31.PA",
-      "Cours (€)": 107.04,
+      "Cours (€)": 102.82,
       "Capitaux propres / titre (€)": 499.869,
       "Capitaux propres totaux (M€)": 2249.311,
-      "Ratio P/B": 0.21413611,
-      "Décote (%)": 78.586389,
+      "Ratio P/B": 0.2056939,
+      "Décote (%)": 79.43061,
       "CCI cotés": 4503183,
-      "Capi. CCI (M€)": 482.020704,
+      "Capi. CCI (M€)": 463.01728,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     },
     {
       "Caisse régionale": "Touraine Poitou",
@@ -168,7 +168,7 @@
       "CCI cotés": 1000497,
       "Capi. CCI (M€)": 755.55776,
       "Dernier bilan": "2025-12-31",
-      "Mis à jour": "2026-10-02T14:24:06+02:00"
+      "Mis à jour": "2026-10-02T20:00:30+02:00"
     }
   ],
   "stale_tickers": [],
